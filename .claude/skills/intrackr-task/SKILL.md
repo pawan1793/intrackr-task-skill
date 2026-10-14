@@ -19,7 +19,7 @@ Work Intrackr task #$task using the gated workflow below. These are standing rul
 - Full test suite, from clean: `<TEST_COMMAND>`
 - Lint: `<LINT_COMMAND>`
 - Static analysis: `<STATIC_ANALYSIS_COMMAND>`
-- Ready-for-QA status in Intrackr: `<READY_FOR_QA_STATUS>`
+- Ready-for-QA status in Intrackr: `review`
 Use exactly these commands wherever this skill says "full suite", "lint" or "static analysis". If a placeholder above is still unfilled, say so and ask the developer before Phase 0 step 4.
 
 ## Phase 0: Pick up (you)

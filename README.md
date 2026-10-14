@@ -68,13 +68,13 @@ git clone https://github.com/pawan1793/intrackr-task-skill.git
 cd intrackr-task-skill
 ./install.sh /path/to/your/repo \
   --server intrackr-developer \
-  --qa-status "ready_for_qa" \
+  --qa-status "review" \
   --test "composer test" \
   --lint "composer lint" \
   --static "composer analyse"
 ```
 
-`--server` is the MCP server name as shown by `/mcp` in Claude Code (default `intrackr-developer`). The other flags fill the placeholders at the top of `SKILL.md`; leave any out and the script tells you what is still unfilled. Nothing in the target repo is deleted: an existing `.claude/settings.json` is merged, the CLAUDE.md pointer is appended once, and `.claude/task/` is added to `.gitignore`.
+`--server` is the MCP server name as shown by `/mcp` in Claude Code (default `intrackr-developer`). The other flags fill the placeholders at the top of `SKILL.md` (`--qa-status` defaults to `review`); leave any out and the script tells you what is still unfilled. Nothing in the target repo is deleted: an existing `.claude/settings.json` is merged, the CLAUDE.md pointer is appended once, and `.claude/task/` is added to `.gitignore`.
 
 ### By hand
 

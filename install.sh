@@ -6,7 +6,7 @@
 #       [--test CMD] [--lint CMD] [--static CMD]
 #
 #   --server     MCP server name as shown by /mcp (default: intrackr-developer)
-#   --qa-status  Ready-for-QA status name in Intrackr
+#   --qa-status  Ready-for-QA status name in Intrackr (default: review)
 #   --test       Full test suite command
 #   --lint       Lint command
 #   --static     Static analysis command
@@ -20,7 +20,7 @@ target="${1:-}"
 [[ -n "$target" && -d "$target" ]] || { echo "usage: $0 /path/to/repo [options]" >&2; exit 1; }
 shift
 
-server="intrackr-developer"; qa=""; test_cmd=""; lint_cmd=""; static_cmd=""
+server="intrackr-developer"; qa="review"; test_cmd=""; lint_cmd=""; static_cmd=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --server)    server="$2"; shift 2 ;;
