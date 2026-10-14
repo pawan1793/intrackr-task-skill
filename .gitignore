@@ -1,0 +1,5 @@
+# Per-developer scratch written by the intrackr-task skill (brief.md, plan.md)
+.claude/task/
+# Local overrides, never shared
+.claude/settings.local.json
+.DS_Store

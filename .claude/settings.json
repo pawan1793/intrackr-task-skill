@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "mcp__intrackr-developer__update_task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -e '.tool_input.status != \"done\"' > /dev/null || { echo 'Blocked: tasks are never marked done by Claude. A human closes the task after QA.' >&2; exit 2; }"
+          }
+        ]
+      }
+    ]
+  }
+}
