@@ -13,9 +13,9 @@ Seven phases: pick up, understand, plan, implement, test, review, hand off. Noth
 | `.claude/agents/scout.md` | Sonnet, read-only: repro, code path, blast radius, test inventory |
 | `.claude/agents/planner.md` | Fable, plan mode: writes the plan document |
 | `.claude/agents/task-reviewer.md` | Fable, read-only: adversarial review of the diff against the plan |
-| `CLAUDE.md.snippet` | Two lines pointing Claude at the skill; appended to the target repo's `CLAUDE.md` |
+| `CLAUDE.md.snippet` | Pointer to the skill plus this repo's test, lint and static-analysis commands; appended to the target repo's `CLAUDE.md` |
 | `.claude/settings.json` | PreToolUse hook that blocks marking a task `done` |
-| `install.sh` | Copies all of the above into a target repo and fills the placeholders |
+| `install.sh` | Installs into a repo or into `~/.claude`, and fills the CLAUDE.md commands |
 
 Requirements: Claude Code, the Intrackr MCP server configured for each developer (below), and `jq` on each developer's machine (the hook uses it).
 
@@ -59,33 +59,48 @@ If you prefer to commit the server definition so nobody has to add it by hand, p
 }
 ```
 
-## Install (once per repo, by the lead)
+## Install
 
-### With the script
+The skill is stack-agnostic: it never contains test commands. Each repo's `CLAUDE.md` lists its own test, lint and static-analysis commands and the skill reads them from there. That gives two ways to install.
+
+### Option A: per repo (recommended for teams)
+
+The lead installs once; the files are committed, so every developer gets the workflow on the next `git pull`.
 
 ```bash
 git clone https://github.com/pawan1793/intrackr-task-skill.git
 cd intrackr-task-skill
 ./install.sh /path/to/your/repo \
-  --server intrackr-developer \
-  --qa-status "review" \
-  --test "composer test" \
-  --lint "composer lint" \
-  --static "composer analyse"
+  --test "npm test" \
+  --lint "npm run lint" \
+  --static "npx tsc --noEmit"
 ```
 
-`--server` is the MCP server name as shown by `/mcp` in Claude Code (default `intrackr-developer`). The other flags fill the placeholders at the top of `SKILL.md` (`--qa-status` defaults to `review`); leave any out and the script tells you what is still unfilled. Nothing in the target repo is deleted: an existing `.claude/settings.json` is merged, the CLAUDE.md pointer is appended once, and `.claude/task/` is added to `.gitignore`.
+Use whatever your stack runs: `pytest` / `ruff check .` / `mypy .`, `composer test` / `composer lint` / `composer analyse`, `go test ./...` / `golangci-lint run`, and so on. Leave a flag out and the script tells you which placeholder in CLAUDE.md is still unfilled. `--server` overrides the MCP server name (default `intrackr-developer`).
+
+Nothing in the target repo is deleted: an existing `.claude/settings.json` is merged, the CLAUDE.md block is appended once, and `.claude/task/` is added to `.gitignore`.
+
+### Option B: once per machine
+
+Installs the skill, agents and hook into `~/.claude`, where they apply to every repo on that machine. Each repo then only needs the CLAUDE.md block with its commands.
+
+```bash
+./install.sh --global
+./install.sh /path/to/repo-one --claude-md-only --test "npm test" --lint "npm run lint" --static "npx tsc --noEmit"
+./install.sh /path/to/repo-two --claude-md-only --test "pytest" --lint "ruff check ." --static "mypy ."
+```
+
+Option B is simpler for a solo developer. Option A is better for a team because the hook and the reviewer travel with the repo and changes to them go through pull requests.
 
 ### By hand
 
-1. Create the folders `.claude/skills/intrackr-task/` and `.claude/agents/`.
+1. Create the folders `.claude/skills/intrackr-task/` and `.claude/agents/` (in the repo, or in `~/.claude` for a machine-wide install).
 2. Copy `SKILL.md`, `scout.md`, `planner.md` and `task-reviewer.md` into them exactly as they are, frontmatter first line `---`.
-3. Append `CLAUDE.md.snippet` to the repo's `CLAUDE.md` (create it if missing). If the repo has only an `AGENTS.md`, put the lines there instead; if it has both, CLAUDE.md wins.
-4. Copy the hook from `.claude/settings.json`. The matcher expects the server to be named `intrackr-developer`; run `/mcp` and change it if yours differs.
-5. Fill the three command placeholders under "Project settings" in `SKILL.md`: the exact test, lint and static-analysis commands for this repo (put them in CLAUDE.md too). The ready-for-QA status is already set to `review`; change it only if your Intrackr uses a different name.
-6. Add `.claude/task/` to `.gitignore`.
+3. Append `CLAUDE.md.snippet` to the repo's `CLAUDE.md` (create it if missing) and replace the three command placeholders with this repo's commands. If the repo has only an `AGENTS.md`, put the lines there instead; if it has both, CLAUDE.md wins.
+4. Copy the hook from `.claude/settings.json` into the repo's `.claude/settings.json` or `~/.claude/settings.json`. The matcher expects the server to be named `intrackr-developer`; run `/mcp` and change it if yours differs.
+5. Add `.claude/task/` to `.gitignore`.
 
-Then, either way: commit everything. Protect `main`: PR required, non-author approval, green CI running the full suite.
+Then, either way: commit what lives in the repo. Protect `main`: PR required, non-author approval, green CI running the full suite.
 
 ## Verify
 

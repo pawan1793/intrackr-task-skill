@@ -15,12 +15,9 @@ Work Intrackr task #$task using the gated workflow below. These are standing rul
 - Never skip, delete or mark-incomplete a test to get green. Report it and wait.
 - Intrackr comments are for testers: no file paths, branch names, commit hashes or PR numbers.
 
-## Project settings (the lead fills these in once per repo)
-- Full test suite, from clean: `<TEST_COMMAND>`
-- Lint: `<LINT_COMMAND>`
-- Static analysis: `<STATIC_ANALYSIS_COMMAND>`
-- Ready-for-QA status in Intrackr: `review`
-Use exactly these commands wherever this skill says "full suite", "lint" or "static analysis". If a placeholder above is still unfilled, say so and ask the developer before Phase 0 step 4.
+## Project settings
+- Test, lint and static-analysis commands: use exactly the ones this repo's CLAUDE.md lists under "Intrackr tasks". Wherever this skill says "full suite", "lint" or "static analysis", run those. If CLAUDE.md does not list them, ask the developer before Phase 0 step 4; never guess from the stack.
+- Ready-for-QA status in Intrackr: `review`.
 
 ## Phase 0: Pick up (you)
 1. `get_task` by id (never title search). `list_projects` and confirm the project matches this git repo; stop if not.
