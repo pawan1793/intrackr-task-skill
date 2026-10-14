@@ -82,7 +82,7 @@ cd intrackr-task-skill
 2. Copy `SKILL.md`, `scout.md`, `planner.md` and `task-reviewer.md` into them exactly as they are, frontmatter first line `---`.
 3. Append `CLAUDE.md.snippet` to the repo's `CLAUDE.md` (create it if missing). If the repo has only an `AGENTS.md`, put the lines there instead; if it has both, CLAUDE.md wins.
 4. Copy the hook from `.claude/settings.json`. The matcher expects the server to be named `intrackr-developer`; run `/mcp` and change it if yours differs.
-5. Fill the four placeholders under "Project settings" in `SKILL.md`: the exact test, lint and static-analysis commands for this repo (put them in CLAUDE.md too), and the name of the ready-for-QA status in Intrackr.
+5. Fill the three command placeholders under "Project settings" in `SKILL.md`: the exact test, lint and static-analysis commands for this repo (put them in CLAUDE.md too). The ready-for-QA status is already set to `review`; change it only if your Intrackr uses a different name.
 6. Add `.claude/task/` to `.gitignore`.
 
 Then, either way: commit everything. Protect `main`: PR required, non-author approval, green CI running the full suite.
