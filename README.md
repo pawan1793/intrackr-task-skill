@@ -16,6 +16,7 @@ Seven phases: pick up, understand, plan, implement, test, review, hand off. Noth
 | `CLAUDE.md.snippet` | Pointer to the skill plus this repo's test, lint and static-analysis commands; appended to the target repo's `CLAUDE.md` |
 | `.claude/settings.json` | PreToolUse hook that blocks marking a task `done` |
 | `install.sh` | Installs into a repo or into `~/.claude`, and fills the CLAUDE.md commands |
+| `.claude-plugin/` | Plugin and marketplace manifests, so the same files install as an auto-updating Claude Code plugin |
 
 Requirements: Claude Code, the Intrackr MCP server configured for each developer (below), and `jq` on each developer's machine (the hook uses it).
 
@@ -61,7 +62,7 @@ If you prefer to commit the server definition so nobody has to add it by hand, p
 
 ## Install
 
-The skill is stack-agnostic: it never contains test commands. Each repo's `CLAUDE.md` lists its own test, lint and static-analysis commands and the skill reads them from there. That gives two ways to install.
+The skill is stack-agnostic: it never contains test commands. Each repo's `CLAUDE.md` lists its own test, lint and static-analysis commands and the skill reads them from there. That gives three ways to install.
 
 ### Option A: per repo (recommended for teams)
 
@@ -90,7 +91,33 @@ Installs the skill, agents and hook into `~/.claude`, where they apply to every 
 ./install.sh /path/to/repo-two --claude-md-only --test "pytest" --lint "ruff check ." --static "mypy ."
 ```
 
-Option B is simpler for a solo developer. Option A is better for a team because the hook and the reviewer travel with the repo and changes to them go through pull requests.
+### Option C: Claude Code plugin (auto-updates)
+
+The same skill, agents and hook, installed from this GitHub repo as a plugin. Each developer runs this once, at Claude Code's prompt (not in a shell), from any folder:
+
+```
+/plugin marketplace add pawan1793/intrackr-task-skill
+/plugin install intrackr-task@intrackr
+```
+
+From a shell, the equivalent is `claude plugin marketplace add pawan1793/intrackr-task-skill` then `claude plugin install intrackr-task@intrackr`.
+
+Then turn on auto-update once: `/plugin` → **Marketplaces** → `intrackr` → **Enable auto-update** (off by default for marketplaces outside Anthropic). Every commit pushed to `main` is then picked up by the next Claude Code session; there is no version number to bump. To update by hand: `/plugin marketplace update intrackr`, then `/reload-plugins`.
+
+Each repo still needs the CLAUDE.md block with its commands:
+
+```bash
+./install.sh /path/to/repo --claude-md-only --test "npm test" --lint "npm run lint" --static "npx tsc --noEmit"
+```
+
+Differences from A and B:
+- The skill is `/intrackr-task:intrackr-task <id>` (plain `/intrackr-task <id>` also works unless something else has that name). The agents are `intrackr-task:scout`, `intrackr-task:planner` and `intrackr-task:task-reviewer`; the skill handles either naming.
+- The hook's matcher is fixed to `mcp__intrackr-developer__update_task`, so the MCP server must be named `intrackr-developer`. `--server` does not apply.
+- Plugins ignore `permissionMode` in agent frontmatter, so the planner runs in the session's mode. It stays read-only through its tool list, and Gate 2 puts the whole session in plan mode anyway.
+- The plugin loads its hook from `.claude/settings.json`; keep only hooks in that file.
+- Switching from B? Delete `~/.claude/skills/intrackr-task/`, the three agent files in `~/.claude/agents/` and the hook in `~/.claude/settings.json`, or you will have two copies of each.
+
+Option B is simpler for a solo developer. Option A is better for a team because the hook and the reviewer travel with the repo and changes to them go through pull requests. Option C keeps every developer on the latest workflow without re-running the installer, but the workflow lives in this repo rather than in each app repo.
 
 ### By hand
 
@@ -105,7 +132,7 @@ Then, either way: commit what lives in the repo. Protect `main`: PR required, no
 ## Verify
 
 - New session, run `/context`: `CLAUDE.md` under Memory files, `intrackr-task` under skills.
-- `/agents`: scout, planner, task-reviewer listed.
+- `/agents`: scout, planner, task-reviewer listed (as `intrackr-task:scout` and so on with Option C; `/plugin` shows the plugin as installed).
 - `/model`: confirm `fable`, `opus`, `sonnet` are available on your plan. If `fable` is not, change `model:` in `planner.md` and `task-reviewer.md` to `opus`. If the main session itself runs on Fable, set the reviewer to `opus` so implementer and reviewer stay different models.
 - Smoke test: type `pick up task <id>`. Claude should move the task to `in_progress`, delegate to scout, post an Understanding brief and stop. If it starts editing files, use `/intrackr-task <id>` explicitly and tighten the skill description.
 

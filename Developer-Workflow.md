@@ -313,7 +313,7 @@ argument-hint: [task-id]
 arguments: task
 ---
 
-Work Intrackr task #$task using the gated workflow below. These are standing rules for the whole task, not one-time steps. You are the orchestrator: you delegate understanding to `scout`, planning to `planner` and review to `task-reviewer`, and you do implementation, testing and handoff yourself. Subagents start with no memory of this conversation, so every delegation message must carry what they need (task id, the brief, the plan, file paths).
+Work Intrackr task #$task using the gated workflow below. These are standing rules for the whole task, not one-time steps. You are the orchestrator: you delegate understanding to `scout`, planning to `planner` and review to `task-reviewer`, and you do implementation, testing and handoff yourself. Subagents start with no memory of this conversation, so every delegation message must carry what they need (task id, the brief, the plan, file paths). When this workflow is installed as a plugin, the subagents are named `intrackr-task:scout`, `intrackr-task:planner` and `intrackr-task:task-reviewer`; use the names your agent list shows.
 
 ## Hard rules (apply at every step)
 - STOP at every GATE and wait for the developer's reply. Never continue past a gate on your own.

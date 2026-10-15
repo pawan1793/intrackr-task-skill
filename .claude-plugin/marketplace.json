@@ -1,0 +1,12 @@
+{
+  "name": "intrackr",
+  "owner": { "name": "Pawan More" },
+  "description": "Intrackr task workflow for Claude Code",
+  "plugins": [
+    {
+      "name": "intrackr-task",
+      "source": ".",
+      "description": "Gated, test-first workflow for Intrackr tasks: orchestrating skill, scout/planner/reviewer subagents and a hook that blocks marking tasks done."
+    }
+  ]
+}

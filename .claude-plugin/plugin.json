@@ -1,0 +1,14 @@
+{
+  "name": "intrackr-task",
+  "description": "Gated, test-first workflow for Intrackr tasks: orchestrating skill, scout/planner/reviewer subagents and a hook that blocks marking tasks done.",
+  "author": { "name": "Pawan More" },
+  "repository": "https://github.com/pawan1793/intrackr-task-skill",
+  "license": "MIT",
+  "skills": "./.claude/skills/",
+  "agents": [
+    "./.claude/agents/scout.md",
+    "./.claude/agents/planner.md",
+    "./.claude/agents/task-reviewer.md"
+  ],
+  "hooks": "./.claude/settings.json"
+}
