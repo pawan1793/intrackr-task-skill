@@ -113,7 +113,7 @@ Then, either way: commit what lives in the repo. Protect `main`: PR required, no
 
 1. Fresh session in the right repo. Type `/intrackr-task <id>`.
 2. Gate 1: read the Understanding brief. Reply `approved` or correct it.
-3. Gate 2: read the plan's scope list, impact analysis and manual steps. Reply `approved` or edit it. Medium/high risk: get the lead's thumbs-up first.
+3. Gate 2: Claude shows the plan on the plan-approval screen. Read the scope list, impact analysis and manual steps, then approve, or reject and say what to change. Medium/high risk: get the lead's thumbs-up first.
 4. Claude implements, tests, runs the reviewer and posts the checklist with evidence.
 5. Gate 3: read the diff file by file, follow the manual test script in the app, click through the regression spots, tick each checklist item against its evidence. Send back anything unticked. Reply `all ticked`.
 6. Open the PR for peer review. Merge after approval and green CI.

@@ -82,7 +82,7 @@ Stop signals: none / ...
 
 ## Phase 2: Plan
 
-Claude delegates the plan to the planner subagent (Fable, plan mode, no file edits) and saves it as the draft PR description; the developer approves it before any code is written (Gate 2). The plan is the contract the review checklist is built from. It is not posted to Intrackr.
+Claude switches the session into plan mode, delegates the plan to the planner subagent (Fable, plan mode, no file edits) and shows it on Claude Code's plan-approval screen; the developer approves it there before any code is written (Gate 2). Only the approved plan is saved, as the draft PR description. The plan is the contract the review checklist is built from. It is not posted to Intrackr.
 
 **Claude writes**
 
@@ -129,7 +129,7 @@ What this could break; what was assumed.
 - Read the scope list: does every file belong? Would you expect a file that is missing?
 - Read the impact analysis: do the listed callers match what you know of the app?
 - Read the manual steps: could you follow them?
-- Medium or high risk: get the lead's thumbs-up before replying. Then reply "approved" or edit the plan. Claude does not code until you do.
+- Medium or high risk: get the lead's thumbs-up before approving. Then approve the plan on the plan-approval screen, or reject it and say what to change; Claude revises and shows it again. Claude does not code until you approve.
 
 ## Phase 3: Implement
 
@@ -284,7 +284,7 @@ With the skill committed, no long prompt is needed. The developer starts the tas
 | --- | --- |
 | Start | `/intrackr-task 356` (or `pick up task 356`; the slash form always works) |
 | Gate 1 | `approved`, or the correction |
-| Gate 2 | `approved`, or the edit to the plan |
+| Gate 2 | approve on the plan-approval screen, or reject with the edit |
 | Gate 3 | the unticked items and why, then `all ticked` |
 | Gate 4 | `hand off` |
 | Claude drifts mid-task | `/intrackr-task 356` again to reload the workflow |
@@ -340,9 +340,9 @@ Append its report to brief.md and post the Understanding brief to the developer:
 GATE 1: wait for "approved" or a correction. Apply corrections to brief.md.
 
 ## Phase 2: Plan (planner) -> GATE 2
-Delegate to the `planner` subagent with the full brief.md. It returns the plan: root cause/approach, acceptance criteria, scope (file + one-line reason each), explicitly out of scope, impact analysis (every caller of shared code and how it stays unchanged; DB/config/dependency changes; risk level + why), test plan (new unit tests, existing tests to run, manual steps for the developer), rollback, self-critique, open questions.
-Save it as `.claude/task/$task/plan.md` and as the draft PR description. Do not post it to Intrackr. If the plan touches more than ~5 files or any shared helper, propose a split with `add_subtask` before presenting it. Put any open questions to the developer with the plan.
-GATE 2: wait for "approved" or an edit. Apply edits to plan.md before coding.
+Call `EnterPlanMode` first. Then delegate to the `planner` subagent with the full brief.md. It returns the plan: root cause/approach, acceptance criteria, scope (file + one-line reason each), explicitly out of scope, impact analysis (every caller of shared code and how it stays unchanged; DB/config/dependency changes; risk level + why), test plan (new unit tests, existing tests to run, manual steps for the developer), rollback, self-critique, open questions.
+If the plan touches more than ~5 files or any shared helper, put the proposed split (subtask titles and what each covers) at the top of the plan. If an open question would change the scope or approach, ask it with `AskUserQuestion` and fold the answer into the plan; leave the rest under Open questions.
+GATE 2: call `ExitPlanMode` with the full plan, unabridged. That approval screen is the gate. If the developer rejects it with feedback, stay in plan mode, revise (re-delegate to `planner` if the approach changes) and call `ExitPlanMode` again. Only after approval: save the approved plan as `.claude/task/$task/plan.md` and as the draft PR description, and create any split with `add_subtask`. Do not post the plan to Intrackr. If `EnterPlanMode` is unavailable or declined, post the plan as a message and wait for "approved" or an edit instead.
 
 ## Phase 3: Implement (you)
 Failing test first for bugs. Small commits prefixed `#$task`. Shared functions keep signature and default behaviour; prefer adding (new method/optional param) over changing. DB/config changes reversible with safe defaults. Finish with `git diff --stat` compared to the scope list in plan.md and report any mismatch.
